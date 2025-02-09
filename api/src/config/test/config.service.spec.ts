@@ -35,6 +35,8 @@ describe('ConfigService', () => {
     result.nodeEnv = defaultEnv.NODE_ENV;
     result.httpPort = parseInt(defaultEnv.HTTP_PORT, 10);
 
+    result.jwtSecret = defaultEnv.JWT_SECRET;
+
     result.typeormUsername = defaultEnv.TYPEORM_USERNAME;
     result.typeormPassword = defaultEnv.TYPEORM_PASSWORD;
     result.typeormHost = defaultEnv.TYPEORM_HOST;
