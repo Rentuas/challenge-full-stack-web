@@ -8,10 +8,10 @@ export class CreateTableStudents1738786827294 implements MigrationInterface {
         columns: [
           {
             name: 'id',
-            type: 'serial',
+            type: 'uuid',
             isPrimary: true,
-            isGenerated: true,
-            generationStrategy: 'increment',
+            generationStrategy: 'uuid',
+            default: 'uuid_generate_v4()',
           },
           {
             name: 'name',
@@ -44,6 +44,7 @@ export class CreateTableStudents1738786827294 implements MigrationInterface {
             name: 'updated_at',
             type: 'timestamp',
             default: 'CURRENT_TIMESTAMP',
+            onUpdate: 'CURRENT_TIMESTAMP',
           },
         ],
       }),
