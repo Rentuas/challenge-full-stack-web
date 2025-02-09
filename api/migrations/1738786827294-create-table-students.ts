@@ -34,6 +34,7 @@ export class CreateTableStudents1738786827294 implements MigrationInterface {
             name: 'cpf',
             type: 'varchar',
             length: '11',
+            isUnique: true,
           },
           {
             name: 'created_at',
