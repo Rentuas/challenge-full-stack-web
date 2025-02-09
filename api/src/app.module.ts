@@ -14,6 +14,7 @@ import { Student } from './students/entities/student.entity';
 
 @Module({
   imports: [
+    AuthModule,
     UsersModule,
     StudentsModule,
     ConfigModule,
@@ -37,7 +38,6 @@ import { Student } from './students/entities/student.entity';
         ],
       }),
     }),
-    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
