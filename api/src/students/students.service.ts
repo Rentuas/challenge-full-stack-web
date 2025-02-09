@@ -1,6 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Not, Repository } from 'typeorm';
 import { Student } from './entities/student.entity';
 import { ICreateStudent } from './interfaces/create-student.interface';
 import { IUpdateStudent } from './interfaces/update-student.interface';
@@ -14,10 +18,53 @@ export class StudentsService {
   ) {}
 
   async register(createStudent: ICreateStudent): Promise<Student> {
-    return this.studentRepository.create(createStudent);
+    const existingStudent = await this.studentRepository.findOne({
+      where: [
+        { email: createStudent.email },
+        { ra: createStudent.ra },
+        { cpf: createStudent.cpf },
+      ],
+    });
+
+    if (existingStudent) {
+      if (existingStudent.email === createStudent.email) {
+        throw new BadRequestException('Email is already in use');
+      }
+
+      if (existingStudent.ra === createStudent.ra) {
+        throw new BadRequestException('RA is already in use');
+      }
+
+      if (existingStudent.cpf === createStudent.cpf) {
+        throw new BadRequestException('CPF is already in use');
+      }
+    }
+
+    const student = this.studentRepository.create(createStudent);
+    return this.studentRepository.save(student);
   }
 
   async update(id: string, updateStudent: IUpdateStudent): Promise<Student> {
+    const whereConditions = [];
+
+    updateStudent.email &&
+      whereConditions.push({ email: updateStudent.email, id: Not(id) });
+    updateStudent.cpf &&
+      whereConditions.push({ cpf: updateStudent.cpf, id: Not(id) });
+
+    const existingStudent = whereConditions.length
+      ? await this.studentRepository.findOne({ where: whereConditions })
+      : null;
+
+    if (existingStudent) {
+      if (updateStudent.email === existingStudent.email) {
+        throw new BadRequestException('Email is already in use');
+      }
+      if (updateStudent.cpf === existingStudent.cpf) {
+        throw new BadRequestException('CPF is already in use');
+      }
+    }
+
     const student = await this.studentRepository.findOne({
       where: { id },
     });

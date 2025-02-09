@@ -17,10 +17,10 @@ export class Student {
   @Column({ unique: true })
   email: string;
 
-  @Column()
+  @Column({ unique: true })
   ra: string;
 
-  @Column()
+  @Column({ unique: true })
   cpf: string;
 
   @CreateDateColumn({ name: 'created_at' })
