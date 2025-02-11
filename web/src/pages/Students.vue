@@ -84,7 +84,7 @@
               size="x-small"
               icon
               color="red"
-              @click="deleteStudent(student.id)"
+              @click="askDeleteConfirmation(student.id)"
             >
               <v-icon>mdi-delete</v-icon>
             </v-btn>
@@ -92,6 +92,24 @@
         </tr>
       </tbody>
     </v-table>
+
+    <v-dialog v-model="confirmDeleteDialog" persistent max-width="400px">
+      <v-card>
+        <v-card-title>
+          <div style="white-space: pre-wrap">
+            Tem certeza que deseja excluir este aluno?
+          </div>
+        </v-card-title>
+        <v-card-actions>
+          <v-btn color="grey" @click="confirmDeleteDialog = false"
+            >Cancelar</v-btn
+          >
+          <v-btn color="red" @click="deleteStudent(deleteStudentId)"
+            >Excluir</v-btn
+          >
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
 
     <v-pagination
       v-model="page"
@@ -163,6 +181,8 @@ const sortOrder = ref("DESC");
 const modalOpen = ref(false);
 const selectedStudent = ref(null);
 const form = ref({ ra: "", name: "", cpf: "", email: "" });
+const confirmDeleteDialog = ref(false);
+const deleteStudentId = ref(null);
 
 const snackbar = ref({
   open: false,
@@ -179,6 +199,11 @@ const showSnackbar = (message, color = "success") => {
   snackbar.value.message = message;
   snackbar.value.color = color;
   snackbar.value.open = true;
+};
+
+const askDeleteConfirmation = (id) => {
+  deleteStudentId.value = id;
+  confirmDeleteDialog.value = true;
 };
 
 const fetchStudents = async () => {
@@ -255,6 +280,8 @@ const deleteStudent = async (id) => {
     fetchStudents();
   } catch (error) {
     handleError(error, "Erro ao excluir alunos.");
+  } finally {
+    confirmDeleteDialog.value = false;
   }
 };
 
