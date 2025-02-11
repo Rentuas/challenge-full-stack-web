@@ -9,6 +9,7 @@ import { Student } from './entities/student.entity';
 import { ICreateStudent } from './interfaces/create-student.interface';
 import { IUpdateStudent } from './interfaces/update-student.interface';
 import { IPaginatedResponse, IPagination } from 'src/common/dto/pagination.dto';
+import { IStudentSearchQuery } from './interfaces/search-student.interface';
 
 @Injectable()
 export class StudentsService {
@@ -28,15 +29,24 @@ export class StudentsService {
 
     if (existingStudent) {
       if (existingStudent.email === createStudent.email) {
-        throw new BadRequestException('Email is already in use');
+        throw new BadRequestException({
+          code: 'EMAIL_ALREADY_IN_USE',
+          message: 'O e-mail informado já está em uso.',
+        });
       }
 
       if (existingStudent.ra === createStudent.ra) {
-        throw new BadRequestException('RA is already in use');
+        throw new BadRequestException({
+          code: 'RA_ALREADY_IN_USE',
+          message: 'O RA informado já está em uso.',
+        });
       }
 
       if (existingStudent.cpf === createStudent.cpf) {
-        throw new BadRequestException('CPF is already in use');
+        throw new BadRequestException({
+          code: 'CPF_ALREADY_IN_USE',
+          message: 'O CPF informado já está em uso.',
+        });
       }
     }
 
@@ -58,10 +68,16 @@ export class StudentsService {
 
     if (existingStudent) {
       if (updateStudent.email === existingStudent.email) {
-        throw new BadRequestException('Email is already in use');
+        throw new BadRequestException({
+          code: 'EMAIL_ALREADY_IN_USE',
+          message: 'O e-mail informado já está em uso.',
+        });
       }
       if (updateStudent.cpf === existingStudent.cpf) {
-        throw new BadRequestException('CPF is already in use');
+        throw new BadRequestException({
+          code: 'CPF_ALREADY_IN_USE',
+          message: 'O CPF informado já está em uso.',
+        });
       }
     }
 
@@ -94,14 +110,25 @@ export class StudentsService {
   async findAll({
     page = 1,
     limit = 10,
-    sort = 'ASC',
-    sortBy = 'id',
-  }: IPagination): Promise<IPaginatedResponse<Student>> {
-    const [data, total] = await this.studentRepository.findAndCount({
-      skip: (page - 1) * limit,
-      take: limit,
-      order: { [sortBy]: sort },
-    });
+    sort = 'DESC',
+    sortBy = 'created_at',
+    search,
+  }: IStudentSearchQuery): Promise<IPaginatedResponse<Student>> {
+    const queryBuilder = this.studentRepository.createQueryBuilder('student');
+
+    if (search) {
+      queryBuilder.andWhere(
+        `(LOWER(student.name) LIKE LOWER(:search) 
+          OR student.ra LIKE :search)`,
+        { search: `%${search}%` },
+      );
+    }
+
+    const [data, total] = await queryBuilder
+      .orderBy(`student.${sortBy}`, sort as 'ASC' | 'DESC')
+      .skip((page - 1) * limit)
+      .take(limit)
+      .getManyAndCount();
 
     return {
       total,

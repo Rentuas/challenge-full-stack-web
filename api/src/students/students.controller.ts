@@ -11,16 +11,12 @@ import {
   Query,
 } from '@nestjs/common';
 import { StudentsService } from './students.service';
-import {
-  ApiBearerAuth,
-  ApiCreatedResponse,
-  ApiResponse,
-} from '@nestjs/swagger';
+import { ApiCreatedResponse, ApiResponse } from '@nestjs/swagger';
 import { CreateStudentDto } from './dtos/create-student.dto';
 import { UpdateStudentDto } from './dtos/update-student.dto';
-import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { StudentResponseDto } from './dtos/student-response.dto';
 import { PaginatedStudentResponseDto } from './dtos/paginated-students-response.dto';
+import { StudentSearchRequestDto } from './dtos/student-search-request.dto';
 
 @Controller('students')
 export class StudentController {
@@ -31,8 +27,8 @@ export class StudentController {
     type: PaginatedStudentResponseDto,
   })
   @HttpCode(HttpStatus.OK)
-  async list(@Query() paginationDto: PaginationDto) {
-    return this.studentsService.findAll(paginationDto);
+  async list(@Query() searchQueryDto: StudentSearchRequestDto) {
+    return this.studentsService.findAll(searchQueryDto);
   }
 
   @Post()
