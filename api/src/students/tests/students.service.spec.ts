@@ -24,6 +24,13 @@ describe('StudentsService', () => {
     save: jest.fn().mockResolvedValue(mockStudent),
     remove: jest.fn().mockResolvedValue(undefined),
     findAndCount: jest.fn().mockResolvedValue([[mockStudent], 1]),
+    createQueryBuilder: jest.fn().mockReturnValue({
+      andWhere: jest.fn().mockReturnThis(),
+      orderBy: jest.fn().mockReturnThis(),
+      skip: jest.fn().mockReturnThis(),
+      take: jest.fn().mockReturnThis(),
+      getManyAndCount: jest.fn().mockResolvedValue([[mockStudent], 1]),
+    }),
   };
 
   beforeEach(async () => {
@@ -162,14 +169,20 @@ describe('StudentsService', () => {
 
   describe('findAll', () => {
     it('should return a paginated list of students', async () => {
-      const result = await studentsService.findAll({ page: 1, limit: 10 });
+      const result = await studentsService.findAll({
+        page: 1,
+        limit: 10,
+        search: 'abc',
+      });
       expect(result).toEqual({
         total: 1,
         page: 1,
         limit: 10,
         data: [mockStudent],
       });
-      expect(studentRepository.findAndCount).toHaveBeenCalled();
+      expect(studentRepository.createQueryBuilder).toHaveBeenCalledWith(
+        'student',
+      );
     });
   });
 });
